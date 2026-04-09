@@ -1,0 +1,144 @@
+Skip to main content
+Skip to main content
+cPanel logo
+Tools
+Applications
+Sitejet Builder
+Social Media Management
+WordPress Management
+WordPress Manager by Softaculous
+Search Tools (/)
+
+Zone Editor
+Domains Manage Zone
+DNS converts domain names into computer-readable IP addresses. Use this feature to manage DNS zones. For more information, read the documentation.
+
+Zone Records for “kosa-cosm.com.dz”
+Configured nameservers for this zone: ns1.hostns.ions2.hostns.io
+Filter by name
+Filter: 
+All
+A
+CNAME
+MX
+SRV
+TXT
+<<<>>>
+Displaying 1 to 30 out of 30 items
+
+  
+Name	TTL	Type	Record	Actions
+kosa-cosm.com.dz.	14400	A	
+91.204.209.8
+ 
+mail.kosa-cosm.com.dz.	14400	CNAME	
+kosa-cosm.com.dz
+ 
+www.kosa-cosm.com.dz.	14400	CNAME	
+kosa-cosm.com.dz
+ 
+ftp.kosa-cosm.com.dz.	14400	CNAME	
+kosa-cosm.com.dz
+ 
+kosa-cosm.com.dz.	14400	TXT	
+v=spf1 ip4:91.204.209.8 ip4:109.70.148.56 +a +mx +ip4:109.70.148.56 +include:relay.mailchannels.net include:spf.hostns.io include:spf.hostns.io -all
+ 
+whm.kosa-cosm.com.dz.	14400	A	
+91.204.209.8
+ 
+autodiscover.kosa-cosm.com.dz.	14400	A	
+91.204.209.8
+ 
+_carddav._tcp.kosa-cosm.com.dz.	14400	SRV	
+Priority: 0
+Weight: 0
+Port: 2079
+Target: kosa-cosm.dz
+ 
+_carddav._tcp.kosa-cosm.com.dz.	14400	TXT	
+path=/
+ 
+_caldav._tcp.kosa-cosm.com.dz.	14400	SRV	
+Priority: 0
+Weight: 0
+Port: 2079
+Target: kosa-cosm.dz
+ 
+_caldav._tcp.kosa-cosm.com.dz.	14400	TXT	
+path=/
+ 
+webdisk.kosa-cosm.com.dz.	14400	A	
+91.204.209.8
+ 
+autoconfig.kosa-cosm.com.dz.	14400	A	
+91.204.209.8
+ 
+cpcontacts.kosa-cosm.com.dz.	14400	A	
+91.204.209.8
+ 
+_autodiscover._tcp.kosa-cosm.com.dz.	14400	SRV	
+Priority: 0
+Weight: 0
+Port: 443
+Target: cpanelemaildiscovery.cpanel.net
+ 
+_caldavs._tcp.kosa-cosm.com.dz.	14400	SRV	
+Priority: 0
+Weight: 0
+Port: 2080
+Target: kosa-cosm.dz
+ 
+_caldavs._tcp.kosa-cosm.com.dz.	14400	TXT	
+path=/
+ 
+webmail.kosa-cosm.com.dz.	14400	A	
+91.204.209.8
+ 
+cpcalendars.kosa-cosm.com.dz.	14400	A	
+91.204.209.8
+ 
+cpanel.kosa-cosm.com.dz.	14400	A	
+91.204.209.8
+ 
+_carddavs._tcp.kosa-cosm.com.dz.	14400	SRV	
+Priority: 0
+Weight: 0
+Port: 2080
+Target: kosa-cosm.dz
+ 
+_carddavs._tcp.kosa-cosm.com.dz.	14400	TXT	
+path=/
+ 
+default._domainkey.kosa-cosm.com.dz.	14400	TXT	
+v=DKIM1; k=rsa; p=MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxV6WTfzLQMfhquEvV4jma/NI2LVcsYqvkshPuz8PfcmBuKxbLSvB5yUcRfl89H/oVxThLLX05FKajdFUij5rCmCSOLLk6C2hzeqaoMOGAwmcXwYqNsTmQkqzYQ4erL0b0hYefecT6XnHluHxSAfRFau+ZSMjiCQkqGDcGL+4Pa+lG5qCFAtaiXaL5ImpFX7Bt
+CY+K3AyYaHThyKxYOcpOix1o4dwQElirSKnbGVEGkO4W0h6fjV72q8K9QeGrYNEh0TOEGrBRSR0h4HkzpQXA1TEOE8dMIqudjEnyE4Tbks9k2lvqTM8j1fE92lGbNqK5hVdGszKChBj8YxFVRtYZQIDAQAB;
+ 
+_cpanel-dcv-test-record.kosa-cosm.com.dz.	14400	TXT	
+_cpanel-dcv-test-record=InJC6X1QKx6eNoPFe451RSwO88WswARRRLgGTZMF3z6CKjrwp3bnJnP8ZSDEIiW4
+ 
+_acme-challenge.kosa-cosm.com.dz.	14400	TXT	
+laGAHMEc6Rgr8Amv0GXNGgU5zEC2Vf6h01-GUOd4PYE
+ 
+_23188f974f4a1ae5e3ddfb3aada6c7a8.kosa-cosm.com.dz.	14400	CNAME	
+c732f6a57c7a017002865649997f3730.ac3ded4fc0e2cb972b52e6caa6988f8d.comodoca.com
+ 
+_f1c0d55a16383b5bb7bc33383292e327.kosa-cosm.com.dz.	14400	CNAME	
+0841804e17f082e08e75b9213e19c82f.f90cc9b0d501506a2a42edccad07b3de.comodoca.com
+ 
+_b302819725c83e8ab07fa0fe2aaca240.kosa-cosm.com.dz.	14400	CNAME	
+5ac903b10b0d094c5ef123c1b571db95.7e661cd7425622fd52e2c5f1b21098e7.comodoca.com
+ 
+_790a3282a09830b30a5f956362921e0e.kosa-cosm.com.dz.	14400	CNAME	
+92aac9b56679f73a0fb42778b02dd67b.b210fe8bbe623643799fb06ab5ea8132.comodoca.com
+ 
+kosa-cosm.com.dz.	14400	MX	
+Priority: 0
+Destination: kosa-cosm.com.dz
+ 
+cPanel logo
+134.0.13
+Home
+Trademarks
+Privacy Policy
+Documentation
+Give Feedback
