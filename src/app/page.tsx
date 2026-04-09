@@ -197,6 +197,20 @@ export default function Home() {
     });
   };
 
+  const updateQuantity = (id: any, delta: number) => {
+    setCart(prev => {
+      const newCart = prev.map(item => {
+        if (item.id === id) {
+          const newQ = item.quantity + delta;
+          return { ...item, quantity: Math.max(1, newQ) };
+        }
+        return item;
+      });
+      localStorage.setItem('kosa_cart', JSON.stringify(newCart));
+      return newCart;
+    });
+  };
+
   const submitOrder = (e: React.FormEvent) => {
     e.preventDefault();
     if (!checkoutData.name || !checkoutData.state || !checkoutData.address || !checkoutData.phone) return;
@@ -376,8 +390,15 @@ export default function Home() {
                         <img src={item.image} className="w-20 h-20 object-cover rounded-xl border border-white shrink-0" alt={item.name} />
                         <div className="flex-1">
                           <h4 className="font-bold text-amber-950 text-sm mb-2">{item.name}</h4>
-                          <p className="text-amber-600 font-black mb-1">المجموع: {(currentPrice * item.quantity).toLocaleString()} دج</p>
-                          <p className="text-xs text-gray-500 font-bold">سعر الوحدة: {currentPrice.toLocaleString()} دج | <span className="text-amber-500">الكمية: {item.quantity}</span></p>
+                          <p className="text-amber-600 font-black mb-2">المجموع: {(currentPrice * item.quantity).toLocaleString()} دج</p>
+                          <div className="flex items-center gap-3">
+                             <div className="flex items-center bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm min-w-max">
+                               <button onClick={() => updateQuantity(item.id, -1)} className="px-2.5 py-1 bg-gray-50 hover:bg-gray-100 text-gray-600 font-black transition-colors">-</button>
+                               <span className="px-2 py-1 text-sm font-black w-8 text-center text-gray-800">{item.quantity}</span>
+                               <button onClick={() => updateQuantity(item.id, 1)} className="px-2.5 py-1 bg-gray-50 hover:bg-gray-100 text-gray-600 font-black transition-colors">+</button>
+                             </div>
+                             <p className="text-[10px] text-gray-400 font-bold hidden sm:block">الوحدة: {currentPrice.toLocaleString()} دج</p>
+                          </div>
                         </div>
                         <button onClick={() => removeFromCart(item.id)} className="text-rose-500 hover:bg-rose-50 p-2 rounded-lg transition-colors shrink-0"><X size={16} /></button>
                       </div>
