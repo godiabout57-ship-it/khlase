@@ -166,6 +166,15 @@ export default function Home() {
         if (parsedCart && parsedCart.length > 0) setCart(parsedCart);
       } catch (e) { }
     }
+
+    if (window.location.search.includes('checkout=true')) {
+      setIsCartOpen(true);
+      setCheckoutStep(true);
+      window.history.replaceState({}, '', '/');
+    } else if (window.location.search.includes('cart=true')) {
+      setIsCartOpen(true);
+      window.history.replaceState({}, '', '/');
+    }
   }, []);
 
   const addToCart = (product: any) => {
@@ -336,8 +345,8 @@ export default function Home() {
                       )}
                     </div>
                     <div className="flex gap-2">
-                      <Link href={`/product/${product.id}`} className="p-3 bg-amber-50 text-amber-900 rounded-xl hover:bg-amber-100"><Info size={18} /></Link>
-                      <button onClick={() => addToCart(product)} className="p-3 bg-black text-white rounded-xl hover:bg-amber-500 hover:text-black transition-colors"><ShoppingCart size={18} /></button>
+                      <button onClick={() => { addToCart(product); setIsCartOpen(true); setCheckoutStep(true); }} className="px-5 py-2 bg-amber-100 text-amber-900 rounded-xl hover:bg-amber-200 transition-colors font-black text-sm flex items-center justify-center border border-amber-200 whitespace-nowrap">اشتري الان</button>
+                      <button onClick={() => addToCart(product)} className="p-3 bg-black text-white rounded-xl hover:bg-amber-500 hover:text-black transition-colors shrink-0"><ShoppingCart size={18} /></button>
                     </div>
                   </div>
                 </div>
@@ -391,6 +400,26 @@ export default function Home() {
               <form onSubmit={submitOrder} className="flex-1 flex flex-col min-h-0 shrink-0 mb-10">
                 <div className="flex-1 space-y-4 px-1">
                   <button type="button" onClick={() => setCheckoutStep(false)} className="text-sm font-bold text-amber-600 mb-4 inline-block">← الرجوع للسلة</button>
+
+                  <div className="mb-6 bg-gray-50 p-4 rounded-xl border border-amber-100/50 shadow-inner">
+                     <h4 className="font-bold text-amber-900 mb-3 text-sm">مراجعة المنتجات:</h4>
+                     <div className="space-y-3 max-h-40 overflow-y-auto pl-2">
+                        {cart.map(item => {
+                           const currentPrice = Number(item.discountPrice) || Number(item.price);
+                           return (
+                             <div key={item.id} className="flex gap-3 items-center border-b border-gray-100 pb-2 last:border-0 last:pb-0">
+                               <img src={item.image} className="w-12 h-12 rounded-lg border border-white shadow-sm object-cover" alt={item.name} />
+                               <div className="flex-1 text-xs">
+                                  <div className="font-bold text-gray-800 line-clamp-1">{item.name}</div>
+                                  <div className="text-gray-500 mt-1">الكمية: {item.quantity} × {currentPrice.toLocaleString()} دج</div>
+                               </div>
+                               <div className="font-black text-amber-700 text-sm text-left">{(currentPrice * item.quantity).toLocaleString()} دج</div>
+                             </div>
+                           );
+                        })}
+                     </div>
+                  </div>
+
                   <h3 className="font-black text-xl mb-4 text-amber-950">معلومات التوصيل</h3>
                   <div>
                     <label className="block text-sm font-bold text-gray-700 mb-1">الاسم الكامل *</label>
