@@ -55,6 +55,21 @@ export default function DirectCheckoutPage() {
     const existingOrders = JSON.parse(localStorage.getItem('kosa_orders') || '[]');
     localStorage.setItem('kosa_orders', JSON.stringify([newOrder, ...existingOrders]));
 
+    // Update Quantity in localStorage products
+    const savedProducts = localStorage.getItem('kosa_products');
+    let allProducts = PRODUCTS;
+    if (savedProducts) {
+       try { allProducts = JSON.parse(savedProducts); } catch(e) {}
+    }
+    
+    const updatedProducts = allProducts.map((p: any) => {
+       if (p.id === product.id) {
+           return { ...p, quantity: Math.max(0, (p.quantity !== undefined ? Number(p.quantity) : 10) - quantity) };
+       }
+       return p;
+    });
+    localStorage.setItem('kosa_products', JSON.stringify(updatedProducts));
+
     setOrderSuccess(true);
   };
 

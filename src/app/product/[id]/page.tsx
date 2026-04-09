@@ -37,14 +37,25 @@ export default function ProductPage() {
     
     let newCart;
     const existing = cart.find(item => item.id === product.id);
+    const availableQty = product.quantity !== undefined ? Number(product.quantity) : 10;
+    
     if (existing) {
+       if (existing.quantity + productQuantity > availableQty) {
+          alert('الكمية المطلوبة تتجاوز المخزون المتوفر');
+          return;
+       }
        newCart = cart.map(item => item.id === product.id ? { ...item, quantity: item.quantity + productQuantity } : item);
     } else {
+       if (productQuantity > availableQty) {
+          alert('الكمية المطلوبة تتجاوز المخزون المتوفر');
+          return;
+       }
        newCart = [...cart, { ...product, quantity: productQuantity }];
     }
     
     setCart(newCart);
     localStorage.setItem('kosa_cart', JSON.stringify(newCart));
+    alert('تم إضافة المنتج لسلة المشتريات بنجاح!');
   };
 
   if (product === null) return <div className="min-h-screen bg-[#fafafa] flex items-center justify-center font-sans text-xl font-bold">جاري التحميل...</div>;
@@ -147,12 +158,20 @@ export default function ProductPage() {
 
                   {/* Action Buttons */}
                   <div className="flex flex-col md:flex-row gap-4 mt-auto">
-                     <button onClick={() => { handleAddToCart(); alert('تم إضافة المنتج لسلة المشتريات بنجاح!'); }} className="flex-1 bg-amber-100 text-amber-900 py-4 md:py-5 rounded-2xl font-black text-lg hover:bg-amber-200 transition-all flex items-center justify-center gap-2 border-2 border-amber-200">
-                        أضف إلى السلة <ShoppingCart size={22}/>
-                     </button>
-                     <button onClick={() => router.push(`/checkout/${product.id}?qty=${productQuantity}`)} className="flex-1 bg-black text-white py-4 md:py-5 rounded-2xl font-black text-lg hover:bg-gray-900 transition-all shadow-xl shadow-black/20 flex items-center justify-center gap-2 italic">
-                        اشتري الان 
-                     </button>
+                     {(product.quantity === 0 || product.quantity === '0' || product.quantity < 0) ? (
+                        <div className="w-full bg-rose-50 text-rose-600 py-4 md:py-5 rounded-2xl font-black text-lg text-center border border-rose-200 shadow-sm flex-1">
+                           نفذت الكمية - نعتذر منكم
+                        </div>
+                     ) : (
+                     <>
+                        <button onClick={handleAddToCart} className="flex-1 bg-amber-100 text-amber-900 py-4 md:py-5 rounded-2xl font-black text-lg hover:bg-amber-200 transition-all flex items-center justify-center gap-2 border-2 border-amber-200">
+                           أضف إلى السلة <ShoppingCart size={22}/>
+                        </button>
+                        <button onClick={() => router.push(`/checkout/${product.id}?qty=${productQuantity}`)} className="flex-1 bg-black text-white py-4 md:py-5 rounded-2xl font-black text-lg hover:bg-gray-900 transition-all shadow-xl shadow-black/20 flex items-center justify-center gap-2 italic">
+                           اشتري الان 
+                        </button>
+                     </>
+                     )}
                   </div>
                </div>
             </div>

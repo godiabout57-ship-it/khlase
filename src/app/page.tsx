@@ -180,13 +180,23 @@ export default function Home() {
   const addToCart = (product: any) => {
     setCart(prev => {
       const existing = prev.find(item => item.id === product.id);
+      const availableQty = product.quantity !== undefined ? Number(product.quantity) : 10;
+      
+      if (existing && existing.quantity + 1 > availableQty) {
+         alert('عذراً، لا يوجد المزيد من هذا المنتج في المخزن.');
+         return prev;
+      } else if (!existing && 1 > availableQty) {
+         alert('عذراً، المنتج نفذ من المخزن.');
+         return prev;
+      }
+
       const newCart = existing
         ? prev.map(item => item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item)
         : [...prev, { ...product, quantity: 1 }];
       localStorage.setItem('kosa_cart', JSON.stringify(newCart));
+      setIsCartOpen(true);
       return newCart;
     });
-    setIsCartOpen(true);
   };
 
   const removeFromCart = (id: any) => {
@@ -199,15 +209,23 @@ export default function Home() {
 
   const updateQuantity = (id: any, delta: number) => {
     setCart(prev => {
-      const newCart = prev.map(item => {
-        if (item.id === id) {
-          const newQ = item.quantity + delta;
-          return { ...item, quantity: Math.max(1, newQ) };
-        }
-        return item;
-      });
-      localStorage.setItem('kosa_cart', JSON.stringify(newCart));
-      return newCart;
+      const updatedCart = [...prev];
+      const index = updatedCart.findIndex(item => item.id === id);
+      if (index !== -1) {
+         const item = updatedCart[index];
+         const productInStore = products.find((p: any) => p.id === id);
+         const availableQty = productInStore ? (productInStore.quantity !== undefined ? Number(productInStore.quantity) : 10) : 10;
+
+         const newQ = item.quantity + delta;
+         if (newQ > availableQty && delta > 0) {
+            alert('عذراً، تم بلوغ الحد الأقصى المتوفر من المنتج.');
+            return prev;
+         }
+         updatedCart[index] = { ...item, quantity: Math.max(1, newQ) };
+         localStorage.setItem('kosa_cart', JSON.stringify(updatedCart));
+         return updatedCart;
+      }
+      return prev;
     });
   };
 
@@ -229,6 +247,17 @@ export default function Home() {
 
     const existingOrders = JSON.parse(localStorage.getItem('kosa_orders') || '[]');
     localStorage.setItem('kosa_orders', JSON.stringify([newOrder, ...existingOrders]));
+
+    // Update quantity in products list
+    const updatedProducts = products.map((p: any) => {
+       const cartItem = cart.find(c => c.id === p.id);
+       if (cartItem) {
+           return { ...p, quantity: Math.max(0, (p.quantity !== undefined ? Number(p.quantity) : 10) - cartItem.quantity) };
+       }
+       return p;
+    });
+    localStorage.setItem('kosa_products', JSON.stringify(updatedProducts));
+    setProducts(updatedProducts);
 
     setCart([]);
     setIsCartOpen(false);
@@ -359,8 +388,14 @@ export default function Home() {
                       )}
                     </div>
                     <div className="flex gap-2">
-                      <Link href={`/checkout/${product.id}?qty=1`} className="px-5 py-2 bg-amber-100 text-amber-900 rounded-xl hover:bg-amber-200 transition-colors font-black text-sm flex items-center justify-center border border-amber-200 whitespace-nowrap">اشتري الان</Link>
-                      <button onClick={() => addToCart(product)} className="p-3 bg-black text-white rounded-xl hover:bg-amber-500 hover:text-black transition-colors shrink-0"><ShoppingCart size={18} /></button>
+                      {(product.quantity === 0 || product.quantity === '0' || product.quantity < 0) ? (
+                         <div className="w-full text-center py-2 px-4 rounded-xl border border-rose-200 bg-rose-50 text-rose-600 font-black text-sm flex-1">نفذت الكمية</div>
+                      ) : (
+                         <>
+                           <Link href={`/checkout/${product.id}?qty=1`} className="px-5 py-2 bg-amber-100 text-amber-900 rounded-xl hover:bg-amber-200 transition-colors font-black text-sm flex items-center justify-center border border-amber-200 whitespace-nowrap">اشتري الان</Link>
+                           <button onClick={() => addToCart(product)} className="p-3 bg-black text-white rounded-xl hover:bg-amber-500 hover:text-black transition-colors shrink-0"><ShoppingCart size={18} /></button>
+                         </>
+                      )}
                     </div>
                   </div>
                 </div>
