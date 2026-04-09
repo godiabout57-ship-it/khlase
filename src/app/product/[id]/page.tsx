@@ -147,10 +147,10 @@ export default function ProductPage() {
 
                   {/* Action Buttons */}
                   <div className="flex flex-col md:flex-row gap-4 mt-auto">
-                     <button onClick={() => { handleAddToCart(); alert('تم إضافة المنتج לסلة المشتريات بنجاح!'); }} className="flex-1 bg-amber-100 text-amber-900 py-4 md:py-5 rounded-2xl font-black text-lg hover:bg-amber-200 transition-all flex items-center justify-center gap-2 border-2 border-amber-200">
+                     <button onClick={() => { handleAddToCart(); alert('تم إضافة المنتج لسلة المشتريات بنجاح!'); }} className="flex-1 bg-amber-100 text-amber-900 py-4 md:py-5 rounded-2xl font-black text-lg hover:bg-amber-200 transition-all flex items-center justify-center gap-2 border-2 border-amber-200">
                         أضف إلى السلة <ShoppingCart size={22}/>
                      </button>
-                     <button onClick={() => { handleAddToCart(); router.push('/?checkout=true'); }} className="flex-1 bg-black text-white py-4 md:py-5 rounded-2xl font-black text-lg hover:bg-gray-900 transition-all shadow-xl shadow-black/20 flex items-center justify-center gap-2 italic">
+                     <button onClick={() => router.push(`/checkout/${product.id}?qty=${productQuantity}`)} className="flex-1 bg-black text-white py-4 md:py-5 rounded-2xl font-black text-lg hover:bg-gray-900 transition-all shadow-xl shadow-black/20 flex items-center justify-center gap-2 italic">
                         اشتري الان 
                      </button>
                   </div>

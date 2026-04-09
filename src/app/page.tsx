@@ -359,7 +359,7 @@ export default function Home() {
                       )}
                     </div>
                     <div className="flex gap-2">
-                      <button onClick={() => { addToCart(product); setIsCartOpen(true); setCheckoutStep(true); }} className="px-5 py-2 bg-amber-100 text-amber-900 rounded-xl hover:bg-amber-200 transition-colors font-black text-sm flex items-center justify-center border border-amber-200 whitespace-nowrap">اشتري الان</button>
+                      <Link href={`/checkout/${product.id}?qty=1`} className="px-5 py-2 bg-amber-100 text-amber-900 rounded-xl hover:bg-amber-200 transition-colors font-black text-sm flex items-center justify-center border border-amber-200 whitespace-nowrap">اشتري الان</Link>
                       <button onClick={() => addToCart(product)} className="p-3 bg-black text-white rounded-xl hover:bg-amber-500 hover:text-black transition-colors shrink-0"><ShoppingCart size={18} /></button>
                     </div>
                   </div>
