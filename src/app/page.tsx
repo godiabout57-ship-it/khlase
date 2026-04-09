@@ -432,7 +432,13 @@ export default function Home() {
                                <img src={item.image} className="w-12 h-12 rounded-lg border border-white shadow-sm object-cover" alt={item.name} />
                                <div className="flex-1 text-xs">
                                   <div className="font-bold text-gray-800 line-clamp-1">{item.name}</div>
-                                  <div className="text-gray-500 mt-1">الكمية: {item.quantity} × {currentPrice.toLocaleString()} دج</div>
+                                  <div className="flex items-center gap-2 mt-1.5">
+                                     <div className="flex items-center bg-white border border-gray-200 rounded-lg overflow-hidden shadow-sm">
+                                       <button type="button" onClick={() => updateQuantity(item.id, -1)} className="px-2 py-0.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-black transition-colors">-</button>
+                                       <span className="px-2 py-0.5 text-xs font-black w-6 text-center text-gray-800">{item.quantity}</span>
+                                       <button type="button" onClick={() => updateQuantity(item.id, 1)} className="px-2 py-0.5 bg-gray-50 hover:bg-gray-100 text-gray-600 font-black transition-colors">+</button>
+                                     </div>
+                                  </div>
                                </div>
                                <div className="font-black text-amber-700 text-sm text-left">{(currentPrice * item.quantity).toLocaleString()} دج</div>
                              </div>
