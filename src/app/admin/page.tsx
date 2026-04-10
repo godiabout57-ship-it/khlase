@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Lock, Package, ListOrdered, TrendingUp, Plus, Trash, CheckCircle, XCircle, Clock, Save, Image as ImageIcon, Upload, Edit } from 'lucide-react';
+import { Lock, Package, ListOrdered, TrendingUp, Plus, Trash, CheckCircle, XCircle, Clock, Save, Image as ImageIcon, Upload, Edit, Database } from 'lucide-react';
 import { PRODUCTS } from '../page';
 
 export default function AdminDashboard() {
@@ -11,6 +11,7 @@ export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<'products' | 'orders'>('products');
   const [products, setProducts] = useState<any[]>([]);
   const [orders, setOrders] = useState<any[]>([]);
+  const [imageFile, setImageFile] = useState<File | null>(null);
 
   // Product Form State
   const [editingId, setEditingId] = useState<number | null>(null);
@@ -27,23 +28,18 @@ export default function AdminDashboard() {
   });
 
   useEffect(() => {
-    const savedProducts = localStorage.getItem('kosa_products');
-    let loadedProducts = PRODUCTS;
-    if (savedProducts) {
-       try {
-         const parsed = JSON.parse(savedProducts);
-         if (parsed && parsed.length > 0) loadedProducts = parsed;
-       } catch(e) {}
+    async function loadData() {
+      try {
+        const { getProducts, getOrders } = await import('@/lib/firebaseUtils');
+        const p = await getProducts();
+        const o = await getOrders();
+        setProducts(p.length > 0 ? p : PRODUCTS);
+        setOrders(o);
+      } catch (e) {
+        setProducts(PRODUCTS);
+      }
     }
-    setProducts(loadedProducts);
-    if (!savedProducts) localStorage.setItem('kosa_products', JSON.stringify(loadedProducts));
-    
-    const savedOrders = localStorage.getItem('kosa_orders');
-    if (savedOrders) {
-       try {
-         setOrders(JSON.parse(savedOrders));
-       } catch(e) {}
-    }
+    loadData();
   }, []);
 
   const handleLogin = (e: React.FormEvent) => {
@@ -55,9 +51,26 @@ export default function AdminDashboard() {
     }
   };
 
+  const migrateToFirebase = async () => {
+    if (confirm('هل تريد رفع المنتجات الحالية إلى قاعدة البيانات؟')) {
+       try {
+         const { addProduct, getProducts } = await import('@/lib/firebaseUtils');
+         for (const p of products) {
+            await addProduct(p);
+         }
+         alert('تم الرفع بنجاح');
+         const updated = await getProducts();
+         setProducts(updated);
+       } catch (e) {
+         alert('حدث خطأ أثناء الرفع');
+       }
+    }
+  };
+
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      setImageFile(file);
       const reader = new FileReader();
       reader.onloadend = () => {
         setNewProduct({...newProduct, image: reader.result as string});
@@ -66,38 +79,53 @@ export default function AdminDashboard() {
     }
   };
 
-  const handleAddProduct = (e: React.FormEvent) => {
+  const handleAddProduct = async (e: React.FormEvent) => {
     e.preventDefault();
-    const product = {
-      id: editingId || Date.now(),
-      name: newProduct.name,
-      category: newProduct.category || 'عام',
-      price: Number(newProduct.price),
-      discountPrice: newProduct.discountPrice ? Number(newProduct.discountPrice) : null,
-      costPrice: Number(newProduct.costPrice),
-      quantity: Number(newProduct.quantity) || 10,
-      image: newProduct.image || '/green.jpeg',
-      description: newProduct.description,
-      isNew: !editingId,
-      details: {
-        benefits: newProduct.benefits.split(',').map((b: string) => b.trim()).filter((b: string) => b),
-        usage: "يُستخدم حسب الحاجة."
-      }
-    };
-
-    let updated;
-    if (editingId) {
-       updated = products.map(p => p.id === editingId ? product : p);
-       alert('تم تعديل المنتج بنجاح');
-    } else {
-       updated = [product, ...products];
-       alert('تم إضافة المنتج بنجاح');
-    }
     
-    setProducts(updated);
-    localStorage.setItem('kosa_products', JSON.stringify(updated));
-    setNewProduct({ name: '', category: '', price: '', discountPrice: '', costPrice: '', quantity: '10', description: '', image: '', benefits: ''});
-    setEditingId(null);
+    let imageUrl = newProduct.image;
+
+    try {
+      const { addProduct, updateProduct, getProducts, uploadImage } = await import('@/lib/firebaseUtils');
+
+      // Upload image if a new file is selected
+      if (imageFile) {
+        const path = `products/${Date.now()}_${imageFile.name}`;
+        imageUrl = await uploadImage(imageFile, path);
+      }
+
+      const productData = {
+        name: newProduct.name,
+        category: newProduct.category || 'عام',
+        price: Number(newProduct.price),
+        discountPrice: newProduct.discountPrice ? Number(newProduct.discountPrice) : null,
+        costPrice: Number(newProduct.costPrice),
+        quantity: Number(newProduct.quantity) || 10,
+        image: imageUrl || '/green.jpeg',
+        description: newProduct.description,
+        isNew: !editingId,
+        details: {
+          benefits: newProduct.benefits.split(',').map((b: string) => b.trim()).filter((b: string) => b),
+          usage: "يُستخدم حسب الحاجة."
+        }
+      };
+
+      if (editingId) {
+        await updateProduct(String(editingId), productData);
+        alert('تم تعديل المنتج بنجاح');
+      } else {
+        await addProduct(productData);
+        alert('تم إضافة المنتج بنجاح');
+      }
+      
+      const updated = await getProducts();
+      setProducts(updated);
+      setNewProduct({ name: '', category: '', price: '', discountPrice: '', costPrice: '', quantity: '10', description: '', image: '', benefits: ''});
+      setEditingId(null);
+      setImageFile(null);
+    } catch (error) {
+       console.error(error);
+       alert('حدث خطأ أثناء حفظ المنتج أو رفع الصورة');
+    }
   };
 
   const handleEditProduct = (product: any) => {
@@ -116,19 +144,30 @@ export default function AdminDashboard() {
      window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
-  const deleteProduct = (id: number) => {
+  const deleteProduct = async (id: any) => {
     if (confirm('هل أنت متأكد من مسح هذا المنتج؟')) {
-       const updated = products.filter(p => p.id !== id);
-       setProducts(updated);
-       localStorage.setItem('kosa_products', JSON.stringify(updated));
+       try {
+         const { deleteProduct, getProducts } = await import('@/lib/firebaseUtils');
+         await deleteProduct(String(id));
+         const updated = await getProducts();
+         setProducts(updated);
+       } catch (e) {
+         alert('خطأ في الحذف');
+       }
     }
   };
 
-  const updateOrderStatus = (orderId: string, newStatus: string) => {
-     const updated = orders.map(o => o.id === orderId ? { ...o, status: newStatus } : o);
-     setOrders(updated);
-     localStorage.setItem('kosa_orders', JSON.stringify(updated));
+  const updateOrderStatus = async (orderId: string, newStatus: string) => {
+     try {
+       const { updateOrderStatus, getOrders } = await import('@/lib/firebaseUtils');
+       await updateOrderStatus(orderId, newStatus);
+       const updated = await getOrders();
+       setOrders(updated);
+     } catch (e) {
+       alert('خطأ في تحديث الحالة');
+     }
   };
+
   
   const calculateTotalProfits = () => {
      return orders.filter(o => o.status === 'Accepted').reduce((acc, order) => {
@@ -176,6 +215,11 @@ export default function AdminDashboard() {
             <button onClick={() => setActiveTab('orders')} className={`w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-black transition-all ${activeTab === 'orders' ? 'bg-amber-500 text-white shadow-md' : 'text-gray-500 hover:bg-amber-50'}`}>
                <ListOrdered size={24} /> الطلبات
             </button>
+
+            <button onClick={migrateToFirebase} className="w-full flex items-center gap-4 px-6 py-4 rounded-2xl font-black text-amber-600 hover:bg-amber-50 transition-all mt-8 border-2 border-dashed border-amber-200">
+               <Database size={24} /> نقل البيانات إلى Firebase
+            </button>
+
          </div>
          
          <div className="mt-auto pt-8 border-t border-gray-100">

@@ -21,13 +21,16 @@ export default function DirectCheckoutPage() {
   const [orderSuccess, setOrderSuccess] = useState(false);
 
   useEffect(() => {
-    const savedProducts = localStorage.getItem('kosa_products');
-    let allProducts = PRODUCTS;
-    if (savedProducts) {
-       try { allProducts = JSON.parse(savedProducts); } catch(e) {}
+    async function loadData() {
+      try {
+        const { getProduct } = await import('@/lib/firebaseUtils');
+        const found = await getProduct(String(id));
+        setProduct(found);
+      } catch (e) {
+        setProduct(PRODUCTS.find(p => p.id === id));
+      }
     }
-    const found = allProducts.find(p => p.id === id);
-    setProduct(found);
+    loadData();
     if (!qtyParam) setQuantity(1);
   }, [id, qtyParam]);
 
@@ -37,14 +40,13 @@ export default function DirectCheckoutPage() {
   const currentPrice = product.discountPrice || product.price;
   const totalAmount = currentPrice * quantity;
 
-  const submitOrder = (e: React.FormEvent) => {
+  const submitOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!checkoutData.name || !checkoutData.state || !checkoutData.address || !checkoutData.phone) return;
 
     const singleItemCart = [{ ...product, quantity }];
 
     const newOrder = {
-      id: Date.now().toString(),
       customer: checkoutData,
       items: singleItemCart,
       total: totalAmount,
@@ -52,26 +54,16 @@ export default function DirectCheckoutPage() {
       date: new Date().toISOString()
     };
 
-    const existingOrders = JSON.parse(localStorage.getItem('kosa_orders') || '[]');
-    localStorage.setItem('kosa_orders', JSON.stringify([newOrder, ...existingOrders]));
-
-    // Update Quantity in localStorage products
-    const savedProducts = localStorage.getItem('kosa_products');
-    let allProducts = PRODUCTS;
-    if (savedProducts) {
-       try { allProducts = JSON.parse(savedProducts); } catch(e) {}
+    try {
+      const { addOrder } = await import('@/lib/firebaseUtils');
+      await addOrder(newOrder);
+      setOrderSuccess(true);
+    } catch (error) {
+       console.error(error);
+       alert('تعذر إتمام الطلب');
     }
-    
-    const updatedProducts = allProducts.map((p: any) => {
-       if (p.id === product.id) {
-           return { ...p, quantity: Math.max(0, (p.quantity !== undefined ? Number(p.quantity) : 10) - quantity) };
-       }
-       return p;
-    });
-    localStorage.setItem('kosa_products', JSON.stringify(updatedProducts));
-
-    setOrderSuccess(true);
   };
+
 
   return (
     <div className="min-h-screen bg-[#fafafa] font-sans text-right" dir="rtl">

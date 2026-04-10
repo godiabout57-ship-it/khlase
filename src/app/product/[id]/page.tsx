@@ -16,14 +16,18 @@ export default function ProductPage() {
   const [cart, setCart] = useState<any[]>([]);
 
   useEffect(() => {
-    // Load Product
-    const savedProducts = localStorage.getItem('kosa_products');
-    let allProducts = PRODUCTS;
-    if (savedProducts) {
-       try { allProducts = JSON.parse(savedProducts); } catch(e) {}
+    async function loadProduct() {
+      try {
+        const { getProduct } = await import('@/lib/firebaseUtils');
+        const found = await getProduct(String(id));
+        setProduct(found);
+      } catch (e) {
+        // Fallback to local PRODUCTS if firestore fails or not yet set up
+        const found = PRODUCTS.find(p => p.id === id);
+        setProduct(found);
+      }
     }
-    const found = allProducts.find(p => p.id === id);
-    setProduct(found);
+    loadProduct();
 
     // Load Cart
     const savedCart = localStorage.getItem('kosa_cart');

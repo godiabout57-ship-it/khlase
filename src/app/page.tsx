@@ -96,11 +96,11 @@ export const PRODUCTS = [
   {
     id: 6,
     name: "النيلة الصحراوية الخام 💙",
-    category: "كنوز الصحراء",
-    price: 990,
-    size: "20g",
-    image: "/blue.jpeg",
-    description: "نيلة تندوف الأصلية الخام، السر الصحراوي لتفتيح الجسم وتوحيد لونه بلمسة واحدة.",
+    category: "الذهب الأزرق",
+    price: 1500,
+    size: "50g",
+    image: "/nila.jpeg",
+    description: "سر جمال الصحراويات، النيلة الزرقاء الأصلية لتفتيح البشرة وتوحيد لونها.",
     isNew: false,
     details: {
       benefits: [
@@ -136,8 +136,8 @@ export const PRODUCTS = [
 export default function Home() {
   const [cart, setCart] = useState<any[]>([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
-
-  const [products, setProducts] = useState<any[]>(PRODUCTS);
+  const [products, setProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
   const [checkoutStep, setCheckoutStep] = useState(false);
   const [checkoutData, setCheckoutData] = useState({ name: '', state: '', address: '', phone: '' });
   const [orderSuccess, setOrderSuccess] = useState(false);
@@ -149,15 +149,23 @@ export default function Home() {
   );
 
   useEffect(() => {
-    const saved = localStorage.getItem('kosa_products');
-    if (saved) {
+    async function loadData() {
       try {
-        const parsed = JSON.parse(saved);
-        if (parsed && parsed.length > 0) setProducts(parsed);
-      } catch (e) { }
-    } else {
-      localStorage.setItem('kosa_products', JSON.stringify(PRODUCTS));
+        const { getProducts } = await import('@/lib/firebaseUtils');
+        const fetchedProducts = await getProducts();
+        if (fetchedProducts.length > 0) {
+          setProducts(fetchedProducts);
+        } else {
+          setProducts(PRODUCTS);
+        }
+      } catch (error) {
+        console.error("Error loading products:", error);
+        setProducts(PRODUCTS);
+      } finally {
+        setLoading(false);
+      }
     }
+    loadData();
 
     const savedCart = localStorage.getItem('kosa_cart');
     if (savedCart) {
@@ -227,6 +235,36 @@ export default function Home() {
       }
       return prev;
     });
+  };
+
+  const submitOrder = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!checkoutData.name || !checkoutData.state || !checkoutData.address || !checkoutData.phone) return;
+
+    const totalAmount = cart.reduce((acc, item) => acc + ((Number(item.discountPrice) || Number(item.price)) * item.quantity), 0);
+
+    const newOrder = {
+      customer: checkoutData,
+      items: cart,
+      total: totalAmount,
+      status: 'Pending',
+      date: new Date().toISOString()
+    };
+
+    try {
+      const { addOrder, getProducts } = await import('@/lib/firebaseUtils');
+      await addOrder(newOrder);
+      
+      const updatedProducts = await getProducts();
+      setProducts(updatedProducts);
+
+      setCart([]);
+      localStorage.removeItem('kosa_cart');
+      setIsCartOpen(false);
+      setCheckoutStep(false);
+      setOrderSuccess(true);
+    } catch (error) {
+      console.error("Error submitting order:", error);
   };
 
   const submitOrder = (e: React.FormEvent) => {
